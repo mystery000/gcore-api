@@ -117,6 +117,33 @@ Delete a DNS record:
 gcore dns record delete ZONE_ID RECORD_ID
 ```
 
+### SSL Certificate Commands
+
+List all SSL certificates:
+```bash
+gcore ssl list
+```
+
+Get certificate details:
+```bash
+gcore ssl get CERT_ID
+```
+
+Upload a custom certificate:
+```bash
+gcore ssl upload NAME CERT_FILE KEY_FILE [--chain-file CHAIN_FILE]
+```
+
+Request a new certificate:
+```bash
+gcore ssl request DOMAIN [DOMAIN...] [--validation-method dns|http]
+```
+
+Check validation status:
+```bash
+gcore ssl validation-status CERT_ID
+```
+
 ## Development
 
 This project uses Poetry for dependency management. To set up the development environment:
