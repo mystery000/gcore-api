@@ -176,6 +176,38 @@ Delete an object:
 gcore storage object delete BUCKET OBJECT_NAME
 ```
 
+### Load Balancer Commands
+
+List all load balancers:
+```bash
+gcore lb list
+```
+
+Create a new load balancer:
+```bash
+gcore lb create NAME REGION [--type http|tcp] [--flavor FLAVOR]
+```
+
+Add a listener:
+```bash
+gcore lb add-listener LB_ID PROTOCOL PORT [--name NAME]
+```
+
+Add a backend pool:
+```bash
+gcore lb add-pool LB_ID LISTENER_ID PROTOCOL [--method ROUND_ROBIN|LEAST_CONNECTIONS] [--name NAME]
+```
+
+Add a backend member:
+```bash
+gcore lb add-member LB_ID POOL_ID ADDRESS PORT [--weight WEIGHT]
+```
+
+Delete a load balancer:
+```bash
+gcore lb delete LB_ID
+```
+
 ## Development
 
 This project uses Poetry for dependency management. To set up the development environment:

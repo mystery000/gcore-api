@@ -6,6 +6,7 @@ from .cdn import CDNClient
 from .dns import DNSClient
 from .ssl import SSLClient
 from .storage import StorageClient
+from .loadbalancer import LoadBalancerClient
 
 @click.group()
 @click.pass_context
@@ -541,6 +542,143 @@ def delete(ctx, bucket, object_name):
     try:
         ctx.obj['storage'].delete_object(bucket, object_name)
         click.echo("Object deleted successfully")
+    except Exception as e:
+        raise click.ClickException(str(e))
+
+@cli.group()
+@click.pass_context
+def lb(ctx):
+    """Manage load balancers."""
+    token = ctx.obj['config'].load_token()
+    if not token:
+        raise click.ClickException("No API token configured. Use 'configure' command first.")
+    auth = GcoreAuth(token)
+    ctx.obj['lb'] = LoadBalancerClient(auth)
+
+@lb.command('list')
+@click.pass_context
+def list_load_balancers(ctx):
+    """List all load balancers."""
+    try:
+        lbs = ctx.obj['lb'].list_load_balancers()
+        if not lbs:
+            click.echo("No load balancers found")
+            return
+        
+        for lb in lbs:
+            click.echo(f"ID: {lb['id']}")
+            click.echo(f"Name: {lb['name']}")
+            click.echo(f"Type: {lb.get('type', 'Unknown')}")
+            click.echo(f"Status: {lb.get('status', 'Unknown')}")
+            click.echo(f"Region: {lb.get('region', 'Unknown')}")
+            click.echo("---")
+    except Exception as e:
+        raise click.ClickException(str(e))
+
+@lb.command()
+@click.argument('name')
+@click.argument('region')
+@click.option('--type', type=click.Choice(['http', 'tcp']), default='http',
+              help='Load balancer type')
+@click.option('--flavor', default='lb1-1-1', help='Load balancer flavor')
+@click.pass_context
+def create(ctx, name, region, type, flavor):
+    """Create a new load balancer."""
+    try:
+        lb = ctx.obj['lb'].create_load_balancer(
+            name=name,
+            region=region,
+            type=type,
+            flavor=flavor
+        )
+        click.echo("Load balancer created successfully:")
+        click.echo(f"ID: {lb['id']}")
+        click.echo(f"Name: {lb['name']}")
+        click.echo(f"Type: {lb.get('type')}")
+        click.echo(f"Status: {lb.get('status')}")
+    except Exception as e:
+        raise click.ClickException(str(e))
+
+@lb.command()
+@click.argument('lb_id', type=int)
+@click.pass_context
+def delete(ctx, lb_id):
+    """Delete a load balancer."""
+    try:
+        ctx.obj['lb'].delete_load_balancer(lb_id)
+        click.echo("Load balancer deleted successfully")
+    except Exception as e:
+        raise click.ClickException(str(e))
+
+@lb.command()
+@click.argument('lb_id', type=int)
+@click.argument('protocol', type=click.Choice(['HTTP', 'HTTPS', 'TCP']))
+@click.argument('port', type=int)
+@click.option('--name', help='Listener name')
+@click.pass_context
+def add_listener(ctx, lb_id, protocol, port, name):
+    """Add a listener to a load balancer."""
+    try:
+        listener = ctx.obj['lb'].create_listener(
+            lb_id=lb_id,
+            protocol=protocol,
+            port=port,
+            name=name
+        )
+        click.echo("Listener created successfully:")
+        click.echo(f"ID: {listener['id']}")
+        click.echo(f"Protocol: {listener['protocol']}")
+        click.echo(f"Port: {listener['port']}")
+    except Exception as e:
+        raise click.ClickException(str(e))
+
+@lb.command()
+@click.argument('lb_id', type=int)
+@click.argument('listener_id', type=int)
+@click.argument('protocol', type=click.Choice(['HTTP', 'HTTPS', 'TCP']))
+@click.option('--method', type=click.Choice(['ROUND_ROBIN', 'LEAST_CONNECTIONS']),
+              default='ROUND_ROBIN', help='Load balancing method')
+@click.option('--name', help='Pool name')
+@click.pass_context
+def add_pool(ctx, lb_id, listener_id, protocol, method, name):
+    """Add a backend pool to a listener."""
+    try:
+        pool = ctx.obj['lb'].create_pool(
+            lb_id=lb_id,
+            listener_id=listener_id,
+            protocol=protocol,
+            method=method,
+            name=name
+        )
+        click.echo("Pool created successfully:")
+        click.echo(f"ID: {pool['id']}")
+        click.echo(f"Protocol: {pool['protocol']}")
+        click.echo(f"Method: {pool['method']}")
+    except Exception as e:
+        raise click.ClickException(str(e))
+
+@lb.command()
+@click.argument('lb_id', type=int)
+@click.argument('pool_id', type=int)
+@click.argument('address')
+@click.argument('port', type=int)
+@click.option('--weight', type=int, default=1, help='Member weight')
+@click.pass_context
+def add_member(ctx, lb_id, pool_id, address, port, weight):
+    """Add a backend member to a pool."""
+    try:
+        member = ctx.obj['lb'].add_member(
+            lb_id=lb_id,
+            pool_id=pool_id,
+            address=address,
+            port=port,
+            weight=weight
+        )
+        click.echo("Member added successfully:")
+        click.echo(f"ID: {member['id']}")
+        click.echo(f"Address: {member['address']}")
+        click.echo(f"Port: {member['port']}")
+        click.echo(f"Weight: {member['weight']}")
     except Exception as e:
         raise click.ClickException(str(e))
 
