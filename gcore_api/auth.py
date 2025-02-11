@@ -31,6 +31,19 @@ class GcoreAuth:
                 f"{self.BASE_URL}/iam/v1/auth/jwt/verify",
                 headers=self.get_headers()
             )
-            return response.status_code == 200
-        except requests.RequestException:
-            return False
+            if response.status_code == 401:
+                raise ValueError("Invalid or expired API token")
+            elif response.status_code == 403:
+                raise ValueError("Token lacks necessary permissions")
+            response.raise_for_status()
+            return True
+        except requests.RequestException as e:
+            if hasattr(e, 'response') and e.response is not None:
+                status_code = e.response.status_code
+                if status_code == 401:
+                    raise ValueError("Invalid or expired API token")
+                elif status_code == 403:
+                    raise ValueError("Token lacks necessary permissions")
+                else:
+                    raise ValueError(f"API request failed: {e}")
+            raise ValueError("Failed to connect to Gcore API. Please check your internet connection.")
