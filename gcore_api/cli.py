@@ -7,13 +7,18 @@ from .dns import DNSClient
 from .ssl import SSLClient
 from .storage import StorageClient
 from .loadbalancer import LoadBalancerClient
+from .logger import logger, setup_logger
 
 @click.group()
+@click.option('--verbose', is_flag=True, help='Enable verbose logging')
+@click.version_option()
 @click.pass_context
-def cli(ctx):
+def cli(ctx, verbose):
     """Gcore API command-line tool."""
+    setup_logger(verbose)
     ctx.ensure_object(dict)
     ctx.obj['config'] = Config()
+    logger.debug("CLI initialized with verbose=%s", verbose)
 
 @cli.command()
 @click.argument('token')

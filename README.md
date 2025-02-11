@@ -1,5 +1,11 @@
 # Gcore API CLI Tool
 
+[![CI](https://github.com/mystery000/gcore-api/actions/workflows/ci.yml/badge.svg)](https://github.com/mystery000/gcore-api/actions/workflows/ci.yml)
+[![PyPI version](https://badge.fury.io/py/gcore-api.svg)](https://badge.fury.io/py/gcore-api)
+[![Python versions](https://img.shields.io/pypi/pyversions/gcore-api.svg)](https://pypi.org/project/gcore-api/)
+
+A comprehensive command-line interface for interacting with Gcore's API services, including CDN, DNS, Storage, SSL Certificates, and Load Balancers.
+
 A command-line interface for interacting with the Gcore API.
 
 ## Installation
