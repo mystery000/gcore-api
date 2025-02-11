@@ -80,6 +80,43 @@ Check purge task status:
 gcore cdn purge-status RESOURCE_ID TASK_ID
 ```
 
+### DNS Commands
+
+List all DNS zones:
+```bash
+gcore dns zone list
+```
+
+Create a new DNS zone:
+```bash
+gcore dns zone create ZONE_NAME
+```
+
+Delete a DNS zone:
+```bash
+gcore dns zone delete ZONE_ID
+```
+
+List records in a DNS zone:
+```bash
+gcore dns record list ZONE_ID
+```
+
+Create a new DNS record:
+```bash
+gcore dns record create ZONE_ID NAME TYPE CONTENT [--ttl TTL]
+```
+
+Example:
+```bash
+gcore dns record create 123 www A 192.0.2.1 --ttl 3600
+```
+
+Delete a DNS record:
+```bash
+gcore dns record delete ZONE_ID RECORD_ID
+```
+
 ## Development
 
 This project uses Poetry for dependency management. To set up the development environment:
