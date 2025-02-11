@@ -60,6 +60,26 @@ Example:
 gcore cdn create example.com --cname cdn.example.com --ssl
 ```
 
+Purge specific URLs from cache:
+```bash
+gcore cdn purge RESOURCE_ID URL [URL...]
+```
+
+Example:
+```bash
+gcore cdn purge 123 https://cdn.example.com/image.jpg https://cdn.example.com/style.css
+```
+
+Purge all cached content:
+```bash
+gcore cdn purge-all RESOURCE_ID
+```
+
+Check purge task status:
+```bash
+gcore cdn purge-status RESOURCE_ID TASK_ID
+```
+
 ## Development
 
 This project uses Poetry for dependency management. To set up the development environment:

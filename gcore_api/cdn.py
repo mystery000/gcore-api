@@ -47,3 +47,32 @@ class CDNClient:
         )
         response.raise_for_status()
         return response.json()
+
+    def purge_url(self, resource_id: int, urls: List[str]) -> Dict:
+        """Purge specific URLs from CDN cache."""
+        data = {"urls": urls}
+        response = requests.post(
+            f"{self.BASE_URL}/resources/{resource_id}/purge",
+            headers=self.auth.get_headers(),
+            json=data
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def purge_all(self, resource_id: int) -> Dict:
+        """Purge all cached content for a resource."""
+        response = requests.post(
+            f"{self.BASE_URL}/resources/{resource_id}/purge/all",
+            headers=self.auth.get_headers()
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def get_purge_status(self, resource_id: int, task_id: str) -> Dict:
+        """Get the status of a purge task."""
+        response = requests.get(
+            f"{self.BASE_URL}/resources/{resource_id}/purge/{task_id}",
+            headers=self.auth.get_headers()
+        )
+        response.raise_for_status()
+        return response.json()

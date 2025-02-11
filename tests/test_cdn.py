@@ -50,3 +50,34 @@ def test_create_resource(cdn_client):
         assert resource["id"] == 1
         assert resource["origin"] == "example.com"
         assert resource["cname"] == "cdn.example.com"
+
+def test_purge_url(cdn_client):
+    with patch('requests.post') as mock_post:
+        mock_post.return_value.json.return_value = {
+            "task_id": "task-123",
+            "status": "pending"
+        }
+        result = cdn_client.purge_url(1, ["https://example.com/image.jpg"])
+        assert result["task_id"] == "task-123"
+        assert result["status"] == "pending"
+
+def test_purge_all(cdn_client):
+    with patch('requests.post') as mock_post:
+        mock_post.return_value.json.return_value = {
+            "task_id": "task-123",
+            "status": "pending"
+        }
+        result = cdn_client.purge_all(1)
+        assert result["task_id"] == "task-123"
+        assert result["status"] == "pending"
+
+def test_get_purge_status(cdn_client):
+    with patch('requests.get') as mock_get:
+        mock_get.return_value.json.return_value = {
+            "task_id": "task-123",
+            "status": "completed",
+            "progress": 100
+        }
+        status = cdn_client.get_purge_status(1, "task-123")
+        assert status["status"] == "completed"
+        assert status["progress"] == 100

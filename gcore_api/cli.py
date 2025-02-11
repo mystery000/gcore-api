@@ -106,6 +106,49 @@ def create(ctx, origin, cname, ssl):
     except Exception as e:
         raise click.ClickException(str(e))
 
+@cdn.command()
+@click.argument('resource_id', type=int)
+@click.argument('urls', nargs=-1, required=True)
+@click.pass_context
+def purge(ctx, resource_id, urls):
+    """Purge specific URLs from CDN cache."""
+    try:
+        result = ctx.obj['cdn'].purge_url(resource_id, list(urls))
+        click.echo("Purge request submitted successfully:")
+        click.echo(f"Task ID: {result.get('task_id')}")
+        click.echo("Use 'cdn purge-status' command to check the status")
+    except Exception as e:
+        raise click.ClickException(str(e))
+
+@cdn.command()
+@click.argument('resource_id', type=int)
+@click.pass_context
+def purge_all(ctx, resource_id):
+    """Purge all cached content for a resource."""
+    try:
+        result = ctx.obj['cdn'].purge_all(resource_id)
+        click.echo("Purge all request submitted successfully:")
+        click.echo(f"Task ID: {result.get('task_id')}")
+        click.echo("Use 'cdn purge-status' command to check the status")
+    except Exception as e:
+        raise click.ClickException(str(e))
+
+@cdn.command()
+@click.argument('resource_id', type=int)
+@click.argument('task_id')
+@click.pass_context
+def purge_status(ctx, resource_id, task_id):
+    """Get the status of a purge task."""
+    try:
+        status = ctx.obj['cdn'].get_purge_status(resource_id, task_id)
+        click.echo(f"Status: {status.get('status', 'Unknown')}")
+        if 'progress' in status:
+            click.echo(f"Progress: {status['progress']}%")
+        if 'error' in status:
+            click.echo(f"Error: {status['error']}")
+    except Exception as e:
+        raise click.ClickException(str(e))
+
 def main():
     """Entry point for the CLI."""
     cli(obj={})
