@@ -5,6 +5,7 @@ from .config import Config
 from .cdn import CDNClient
 from .dns import DNSClient
 from .ssl import SSLClient
+from .storage import StorageClient
 
 @click.group()
 @click.pass_context
@@ -393,6 +394,153 @@ def validation_status(ctx, cert_id):
                     click.echo(f"  Type: {record.get('type')}")
                     click.echo(f"  Name: {record.get('name')}")
                     click.echo(f"  Value: {record.get('value')}")
+    except Exception as e:
+        raise click.ClickException(str(e))
+
+@cli.group()
+@click.pass_context
+def storage(ctx):
+    """Manage storage buckets and objects."""
+    token = ctx.obj['config'].load_token()
+    if not token:
+        raise click.ClickException("No API token configured. Use 'configure' command first.")
+    auth = GcoreAuth(token)
+    ctx.obj['storage'] = StorageClient(auth)
+
+@storage.group()
+def bucket():
+    """Manage storage buckets."""
+    pass
+
+@bucket.command('list')
+@click.pass_context
+def list_buckets(ctx):
+    """List all storage buckets."""
+    try:
+        buckets = ctx.obj['storage'].list_buckets()
+        if not buckets:
+            click.echo("No storage buckets found")
+            return
+        
+        for bucket in buckets:
+            click.echo(f"Name: {bucket['name']}")
+            click.echo(f"Location: {bucket.get('location', 'Unknown')}")
+            click.echo(f"Access: {bucket.get('access', 'private')}")
+            click.echo("---")
+    except Exception as e:
+        raise click.ClickException(str(e))
+
+@bucket.command()
+@click.argument('name')
+@click.option('--location', default='eu-north-1', help='Bucket location')
+@click.option('--access', type=click.Choice(['private', 'public-read']), 
+              default='private', help='Bucket access level')
+@click.pass_context
+def create(ctx, name, location, access):
+    """Create a new storage bucket."""
+    try:
+        bucket = ctx.obj['storage'].create_bucket(
+            name=name,
+            location=location,
+            access=access
+        )
+        click.echo("Storage bucket created successfully:")
+        click.echo(f"Name: {bucket['name']}")
+        click.echo(f"Location: {bucket.get('location')}")
+        click.echo(f"Access: {bucket.get('access')}")
+    except Exception as e:
+        raise click.ClickException(str(e))
+
+@bucket.command()
+@click.argument('name')
+@click.pass_context
+def delete(ctx, name):
+    """Delete a storage bucket."""
+    try:
+        ctx.obj['storage'].delete_bucket(name)
+        click.echo("Storage bucket deleted successfully")
+    except Exception as e:
+        raise click.ClickException(str(e))
+
+@storage.group()
+def object():
+    """Manage storage objects."""
+    pass
+
+@object.command('list')
+@click.argument('bucket')
+@click.option('--prefix', help='Filter objects by prefix')
+@click.option('--delimiter', help='Delimiter for hierarchy')
+@click.pass_context
+def list_objects(ctx, bucket, prefix, delimiter):
+    """List objects in a bucket."""
+    try:
+        result = ctx.obj['storage'].list_objects(
+            bucket_name=bucket,
+            prefix=prefix,
+            delimiter=delimiter
+        )
+        
+        if not result.get('objects'):
+            click.echo("No objects found")
+            return
+            
+        for obj in result['objects']:
+            click.echo(f"Name: {obj['name']}")
+            click.echo(f"Size: {obj.get('size', 0)} bytes")
+            click.echo(f"Last Modified: {obj.get('last_modified', 'Unknown')}")
+            click.echo("---")
+    except Exception as e:
+        raise click.ClickException(str(e))
+
+@object.command()
+@click.argument('bucket')
+@click.argument('object_name')
+@click.argument('file_path', type=click.Path(exists=True))
+@click.option('--content-type', help='Content type of the object')
+@click.pass_context
+def upload(ctx, bucket, object_name, file_path, content_type):
+    """Upload an object to a bucket."""
+    try:
+        result = ctx.obj['storage'].upload_object(
+            bucket_name=bucket,
+            object_name=object_name,
+            file_path=file_path,
+            content_type=content_type
+        )
+        click.echo("Object uploaded successfully:")
+        click.echo(f"Bucket: {bucket}")
+        click.echo(f"Object: {object_name}")
+        click.echo(f"Size: {result.get('size', 0)} bytes")
+    except Exception as e:
+        raise click.ClickException(str(e))
+
+@object.command()
+@click.argument('bucket')
+@click.argument('object_name')
+@click.option('--output', type=click.Path(), help='Output file path')
+@click.pass_context
+def download(ctx, bucket, object_name, output):
+    """Download an object from a bucket."""
+    try:
+        ctx.obj['storage'].download_object(
+            bucket_name=bucket,
+            object_name=object_name,
+            file_path=output
+        )
+        click.echo("Object downloaded successfully")
+    except Exception as e:
+        raise click.ClickException(str(e))
+
+@object.command()
+@click.argument('bucket')
+@click.argument('object_name')
+@click.pass_context
+def delete(ctx, bucket, object_name):
+    """Delete an object from a bucket."""
+    try:
+        ctx.obj['storage'].delete_object(bucket, object_name)
+        click.echo("Object deleted successfully")
     except Exception as e:
         raise click.ClickException(str(e))
 

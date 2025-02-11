@@ -144,6 +144,38 @@ Check validation status:
 gcore ssl validation-status CERT_ID
 ```
 
+### Storage Commands
+
+List all buckets:
+```bash
+gcore storage bucket list
+```
+
+Create a new bucket:
+```bash
+gcore storage bucket create NAME [--location LOCATION] [--access private|public-read]
+```
+
+List objects in a bucket:
+```bash
+gcore storage object list BUCKET [--prefix PREFIX] [--delimiter DELIMITER]
+```
+
+Upload an object:
+```bash
+gcore storage object upload BUCKET OBJECT_NAME FILE_PATH [--content-type TYPE]
+```
+
+Download an object:
+```bash
+gcore storage object download BUCKET OBJECT_NAME [--output OUTPUT_PATH]
+```
+
+Delete an object:
+```bash
+gcore storage object delete BUCKET OBJECT_NAME
+```
+
 ## Development
 
 This project uses Poetry for dependency management. To set up the development environment:
