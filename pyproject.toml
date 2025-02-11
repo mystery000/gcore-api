@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcore-api"
-version = "1.0.0"
+version = "1.0.1"
 description = "Command-line tool for Gcore API integration"
 authors = ["DevopsX <devopsx@example.com>"]
 readme = "README.md"

@@ -1,5 +1,7 @@
+#!/usr/bin/env python3
 import mimetypes
-from pathlib import Path
+import os
+from typing import Dict, List, Optional
 
 import requests
 
@@ -12,21 +14,27 @@ class StorageClient:
     def __init__(self, auth):
         self.auth = auth
 
-    def list_buckets(self) -> List[Dict]:
+    def list_buckets(self) -> List[Dict[str, str]]:
         """List all storage buckets."""
         response = requests.get(
-            f"{self.BASE_URL}/buckets", headers=self.auth.get_headers()
+            f"{self.BASE_URL}/buckets",
+            headers=self.auth.get_headers(),
         )
         response.raise_for_status()
         return response.json()
 
     def create_bucket(
-        self, name: str, location: str = "eu-north-1", access: str = "private"
-    ) -> Dict:
+        self,
+        name: str,
+        location: str = "eu-north-1",
+        access: str = "private",
+    ) -> Dict[str, str]:
         """Create a new storage bucket."""
         data = {"name": name, "location": location, "access": access}
         response = requests.post(
-            f"{self.BASE_URL}/buckets", headers=self.auth.get_headers(), json=data
+            f"{self.BASE_URL}/buckets",
+            headers=self.auth.get_headers(),
+            json=data,
         )
         response.raise_for_status()
         return response.json()
@@ -34,7 +42,8 @@ class StorageClient:
     def delete_bucket(self, bucket_name: str) -> None:
         """Delete a storage bucket."""
         response = requests.delete(
-            f"{self.BASE_URL}/buckets/{bucket_name}", headers=self.auth.get_headers()
+            f"{self.BASE_URL}/buckets/{bucket_name}",
+            headers=self.auth.get_headers(),
         )
         response.raise_for_status()
 
@@ -43,7 +52,7 @@ class StorageClient:
         bucket_name: str,
         prefix: Optional[str] = None,
         delimiter: Optional[str] = None,
-    ) -> Dict:
+    ) -> Dict[str, List[Dict[str, str]]]:
         """List objects in a bucket."""
         params = {}
         if prefix:
@@ -65,12 +74,10 @@ class StorageClient:
         object_name: str,
         file_path: str,
         content_type: Optional[str] = None,
-    ) -> Dict:
+    ) -> Dict[str, str]:
         """Upload an object to a bucket."""
         if not content_type:
-            content_type = (
-                mimetypes.guess_type(file_path)[0] or "application/octet-stream"
-            )
+            content_type = mimetypes.guess_type(file_path)[0] or "application/octet-stream"
 
         headers = self.auth.get_headers()
         headers["Content-Type"] = content_type
@@ -85,7 +92,10 @@ class StorageClient:
         return response.json()
 
     def download_object(
-        self, bucket_name: str, object_name: str, file_path: Optional[str] = None
+        self,
+        bucket_name: str,
+        object_name: str,
+        file_path: Optional[str] = None,
     ) -> None:
         """Download an object from a bucket."""
         response = requests.get(

@@ -1,4 +1,5 @@
-from typing import Dict, List
+#!/usr/bin/env python3
+from typing import Dict, List, Optional
 
 import requests
 
@@ -11,7 +12,7 @@ class SSLClient:
     def __init__(self, auth):
         self.auth = auth
 
-    def list_certificates(self) -> List[Dict]:
+    def list_certificates(self) -> List[Dict[str, str]]:
         """List all SSL certificates."""
         response = requests.get(
             f"{self.BASE_URL}/certificates", headers=self.auth.get_headers()
@@ -19,7 +20,7 @@ class SSLClient:
         response.raise_for_status()
         return response.json()
 
-    def get_certificate(self, cert_id: int) -> Dict:
+    def get_certificate(self, cert_id: int) -> Dict[str, str]:
         """Get details of a specific SSL certificate."""
         response = requests.get(
             f"{self.BASE_URL}/certificates/{cert_id}", headers=self.auth.get_headers()
@@ -29,14 +30,20 @@ class SSLClient:
 
     def upload_certificate(
         self, name: str, cert: str, private_key: str, chain: Optional[str] = None
-    ) -> Dict:
+    ) -> Dict[str, str]:
         """Upload a custom SSL certificate."""
-        data = {"name": name, "certificate": cert, "private_key": private_key}
+        data = {
+            "name": name,
+            "certificate": cert,
+            "private_key": private_key,
+        }
         if chain:
             data["chain"] = chain
 
         response = requests.post(
-            f"{self.BASE_URL}/certificates", headers=self.auth.get_headers(), json=data
+            f"{self.BASE_URL}/certificates",
+            headers=self.auth.get_headers(),
+            json=data,
         )
         response.raise_for_status()
         return response.json()
@@ -50,7 +57,7 @@ class SSLClient:
 
     def request_certificate(
         self, domains: List[str], validation_method: str = "dns"
-    ) -> Dict:
+    ) -> Dict[str, str]:
         """Request a new SSL certificate through Gcore."""
         data = {"domains": domains, "validation_method": validation_method}
         response = requests.post(
@@ -61,7 +68,7 @@ class SSLClient:
         response.raise_for_status()
         return response.json()
 
-    def get_validation_status(self, cert_id: int) -> Dict:
+    def get_validation_status(self, cert_id: int) -> Dict[str, str]:
         """Get domain validation status for a certificate request."""
         response = requests.get(
             f"{self.BASE_URL}/certificates/{cert_id}/validation",

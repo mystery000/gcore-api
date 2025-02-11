@@ -1,4 +1,6 @@
-from typing import Dict, List
+#!/usr/bin/env python3
+import os
+from typing import Dict, Optional
 
 import requests
 
@@ -20,7 +22,7 @@ class GcoreAuth:
                 "API token must be provided or set in GCORE_API_TOKEN environment variable"
             )
 
-    def get_headers(self) -> dict:
+    def get_headers(self) -> Dict[str, str]:
         """Get headers for API requests."""
         return {
             "Authorization": f"Bearer {self.api_token}",

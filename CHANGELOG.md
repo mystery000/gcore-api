@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1] - 2024-02-11
+
+### Fixed
+- Fixed type hints and imports across all modules
+- Improved code formatting and style consistency
+- Fixed duplicate command names in CLI
+
 ## [1.0.0] - 2024-02-11
 
 ### Added

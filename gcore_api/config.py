@@ -1,5 +1,6 @@
+#!/usr/bin/env python3
 from pathlib import Path
-from typing import Dict, List
+from typing import Optional
 
 import yaml
 
@@ -17,7 +18,7 @@ class Config:
         """Ensure configuration directory exists."""
         self.config_dir.mkdir(parents=True, exist_ok=True)
 
-    def save_token(self, token: str):
+    def save_token(self, token: str) -> None:
         """Save API token to configuration file."""
         config = {"api_token": token}
         with open(self.config_file, "w") as f:
