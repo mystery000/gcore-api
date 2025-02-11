@@ -1,12 +1,18 @@
 # Gcore API CLI Tool
 
-[![CI](https://github.com/mystery000/gcore-api/actions/workflows/ci.yml/badge.svg)](https://github.com/mystery000/gcore-api/actions/workflows/ci.yml)
+[![CI/CD](https://github.com/mystery000/gcore-api/actions/workflows/ci.yml/badge.svg)](https://github.com/mystery000/gcore-api/actions/workflows/ci.yml)
 [![PyPI version](https://badge.fury.io/py/gcore-api.svg)](https://badge.fury.io/py/gcore-api)
 [![Python versions](https://img.shields.io/pypi/pyversions/gcore-api.svg)](https://pypi.org/project/gcore-api/)
 
-A comprehensive command-line interface for interacting with Gcore's API services, including CDN, DNS, Storage, SSL Certificates, and Load Balancers.
+A comprehensive command-line interface for interacting with Gcore's API services.
 
-A command-line interface for interacting with the Gcore API.
+## Features
+
+- CDN resource management
+- DNS zones and records management
+- SSL certificate management
+- Storage buckets and objects management
+- Load balancer management
 
 ## Installation
 
@@ -14,227 +20,85 @@ A command-line interface for interacting with the Gcore API.
 pip install gcore-api
 ```
 
-## Authentication
+## Quick Start
 
-Before using the tool, you need to get an API token from Gcore:
-
-1. Log in to your Gcore Control Panel at https://auth.gcore.com/login
-2. Go to API section
-3. Generate a new permanent token
-4. Use this token to configure the CLI
-
-Configure the CLI with your token:
-
+1. Get your API token from Gcore Control Panel
+2. Configure the CLI:
 ```bash
 gcore configure YOUR_API_TOKEN
 ```
 
-You can also set the token via environment variable:
-
-```bash
-export GCORE_API_TOKEN=YOUR_API_TOKEN
-```
-
 ## Usage
 
-### Authentication Commands
+### CDN Management
 
-Verify your authentication:
 ```bash
-gcore verify
-```
-
-### CDN Commands
-
-List all CDN resources:
-```bash
+# List CDN resources
 gcore cdn list
+
+# Create CDN resource
+gcore cdn create example.com --cname cdn.example.com
+
+# Purge cache
+gcore cdn purge RESOURCE_ID https://example.com/image.jpg
 ```
 
-Get details of a specific CDN resource:
-```bash
-gcore cdn get RESOURCE_ID
-```
+### DNS Management
 
-Create a new CDN resource:
 ```bash
-gcore cdn create ORIGIN [--cname CNAME] [--ssl/--no-ssl]
-```
-
-Example:
-```bash
-gcore cdn create example.com --cname cdn.example.com --ssl
-```
-
-Purge specific URLs from cache:
-```bash
-gcore cdn purge RESOURCE_ID URL [URL...]
-```
-
-Example:
-```bash
-gcore cdn purge 123 https://cdn.example.com/image.jpg https://cdn.example.com/style.css
-```
-
-Purge all cached content:
-```bash
-gcore cdn purge-all RESOURCE_ID
-```
-
-Check purge task status:
-```bash
-gcore cdn purge-status RESOURCE_ID TASK_ID
-```
-
-### DNS Commands
-
-List all DNS zones:
-```bash
+# List DNS zones
 gcore dns zone list
+
+# Create zone
+gcore dns zone create example.com
+
+# Add record
+gcore dns record create ZONE_ID www A 192.0.2.1
 ```
 
-Create a new DNS zone:
-```bash
-gcore dns zone create ZONE_NAME
-```
+### SSL Certificates
 
-Delete a DNS zone:
 ```bash
-gcore dns zone delete ZONE_ID
-```
-
-List records in a DNS zone:
-```bash
-gcore dns record list ZONE_ID
-```
-
-Create a new DNS record:
-```bash
-gcore dns record create ZONE_ID NAME TYPE CONTENT [--ttl TTL]
-```
-
-Example:
-```bash
-gcore dns record create 123 www A 192.0.2.1 --ttl 3600
-```
-
-Delete a DNS record:
-```bash
-gcore dns record delete ZONE_ID RECORD_ID
-```
-
-### SSL Certificate Commands
-
-List all SSL certificates:
-```bash
+# List certificates
 gcore ssl list
-```
 
-Get certificate details:
-```bash
-gcore ssl get CERT_ID
-```
+# Request certificate
+gcore ssl request example.com www.example.com
 
-Upload a custom certificate:
-```bash
-gcore ssl upload NAME CERT_FILE KEY_FILE [--chain-file CHAIN_FILE]
-```
-
-Request a new certificate:
-```bash
-gcore ssl request DOMAIN [DOMAIN...] [--validation-method dns|http]
-```
-
-Check validation status:
-```bash
+# Check validation status
 gcore ssl validation-status CERT_ID
 ```
 
-### Storage Commands
+### Storage Management
 
-List all buckets:
 ```bash
+# List buckets
 gcore storage bucket list
-```
 
-Create a new bucket:
-```bash
-gcore storage bucket create NAME [--location LOCATION] [--access private|public-read]
-```
+# Create bucket
+gcore storage bucket create my-bucket
 
-List objects in a bucket:
-```bash
-gcore storage object list BUCKET [--prefix PREFIX] [--delimiter DELIMITER]
-```
-
-Upload an object:
-```bash
-gcore storage object upload BUCKET OBJECT_NAME FILE_PATH [--content-type TYPE]
-```
-
-Download an object:
-```bash
-gcore storage object download BUCKET OBJECT_NAME [--output OUTPUT_PATH]
-```
-
-Delete an object:
-```bash
-gcore storage object delete BUCKET OBJECT_NAME
-```
-
-### Load Balancer Commands
-
-List all load balancers:
-```bash
-gcore lb list
-```
-
-Create a new load balancer:
-```bash
-gcore lb create NAME REGION [--type http|tcp] [--flavor FLAVOR]
-```
-
-Add a listener:
-```bash
-gcore lb add-listener LB_ID PROTOCOL PORT [--name NAME]
-```
-
-Add a backend pool:
-```bash
-gcore lb add-pool LB_ID LISTENER_ID PROTOCOL [--method ROUND_ROBIN|LEAST_CONNECTIONS] [--name NAME]
-```
-
-Add a backend member:
-```bash
-gcore lb add-member LB_ID POOL_ID ADDRESS PORT [--weight WEIGHT]
-```
-
-Delete a load balancer:
-```bash
-gcore lb delete LB_ID
+# Upload file
+gcore storage object upload my-bucket file.txt /path/to/file.txt
 ```
 
 ## Development
 
-This project uses Poetry for dependency management. To set up the development environment:
+1. Clone the repository
+2. Install dependencies:
+```bash
+poetry install
+```
 
-1. Install Poetry
-2. Clone the repository
-3. Run `poetry install`
-4. Run `poetry shell` to activate the virtual environment
-
-## Testing
-
-Run tests using pytest:
-
+3. Run tests:
 ```bash
 poetry run pytest
 ```
 
-## Error Handling
+## Contributing
 
-Common errors and solutions:
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-- "No API token configured": Run `gcore configure YOUR_API_TOKEN` with a valid token
-- "Invalid API token": Make sure your token is valid and not expired
-- "API request failed": Check your internet connection and Gcore API status
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
